@@ -1,0 +1,6 @@
+______TODO:_______
+
+- Create repository for tomato app on Github
+- Complete 10 typing races 
+- Make terraform module for AWS infrastructure
+
