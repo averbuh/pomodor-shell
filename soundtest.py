@@ -10,6 +10,5 @@ audio_link='/home/alex/database/scripts/python/tomato_git/flute.mp3'
 
 def soundplay():
     mixer.init()
-#   mixer.music.load("tomato_app/mixkit-woosh-wind-1168.wav")
     mixer.music.load(audio_link)
     mixer.music.play()
