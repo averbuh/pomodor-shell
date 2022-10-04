@@ -5,7 +5,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 from pygame import mixer
 
 
-audio_link='/home/alex/database/scripts/python/flute.wav'
+audio_link='/home/alex/database/scripts/python/tomato_app/flute.wav'
 
 
 def soundplay():

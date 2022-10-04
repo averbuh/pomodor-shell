@@ -1,6 +1,0 @@
-______TODO:_______
-
-- Complete 10 typing races 
-- Make terraform module for AWS infrastructure
-- Lizrok garbage
-
