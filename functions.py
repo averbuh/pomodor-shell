@@ -1,26 +1,24 @@
 import os
 import time
 import sys
-import signal
+#import signal
+from settings import dir_path
 
 from soundtest import soundplay as alert
-from playsound import playsound
 from datetime import date, timedelta, datetime
 
 
 nowtime = datetime.now()
 yestime = date.today() - timedelta(days=1)
-t_string = nowtime.strftime("%H:%M:%S")
+time_string = nowtime.strftime("%H:%M:%S")
 d_string = nowtime.strftime("%d.%m.%Y")
 yesterday = yestime.strftime("%d.%m.%Y")
 
-
-audio_link='/home/alex/database/scripts/python/flute.wav'
-img_med='/home/alex/database/scripts/python/tomato_app/img/meditation.txt'
-img_mot='/home/alex/database/scripts/python/tomato_app/img/motivation.txt'
-daylogs='/home/alex/database/scripts/python/tomato_app/daylogs/'
-activities='/home/alex/database/scripts/python/tomato_app/activities.txt'
-activities_temp='/home/alex/database/scripts/python/tomato_app/activities_temp.txt'
+img_med=dir_path+'img/meditation.txt'
+img_mot=dir_path+'img/motivation.txt'
+daylogs=dir_path+'daylogs/'
+activities=dir_path+'activities.txt'
+activities_temp=dir_path+'activities_temp.txt'
 
 
 #def handler(signum, frame):
@@ -65,7 +63,6 @@ def restart_activities(first=False):
     linesf=fileread(activities, False)
     liness=fileread(activities_temp, False)
     if first:
-        print("")
         fileread(activities,True,True)
         filewrite_fromfile(activities,activities_temp)
     elif not similar_files(activities,activities_temp) or linesf != liness:
@@ -155,7 +152,7 @@ def daysession(add_tomato):
 
     os.system('touch ' + daylogs + d_string)
     text_file = open(daylogs + d_string,"a")
-    text_file.write(t_string + " " + str(add_tomato) + " tomatos" +"\n")
+    text_file.write(time_string + " " + str(add_tomato) + " tomatos" +"\n")
     text_file.close()
 
 

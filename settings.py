@@ -5,3 +5,6 @@ DEFAULT_SESSIONS=3
 
 #Activities:
 DEFAULT_ACTIVITIES=False
+
+#PATH
+dir_path='/home/alex/database/scripts/python/tomato_git/'
