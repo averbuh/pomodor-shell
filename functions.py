@@ -6,6 +6,7 @@ from settings import dir_path
 
 from soundtest import soundplay as alert
 from datetime import date, timedelta, datetime
+from create_activity import return_activities as ra
 
 
 nowtime = datetime.now()
@@ -75,6 +76,13 @@ def restart_activities(first=False):
         filewrite_fromfile(activities,activities_temp)
     
       
+def restart_activities_sql():
+    lines = ra(False)
+    print("\n\x1b["+str(lines) + "A\x1b[0J\x1b[1A")
+    
+    
+
+
 def cust_session(min, sec):
     """
     Timer with motivation image and list of activities
@@ -82,6 +90,7 @@ def cust_session(min, sec):
 
     sec += min * 60
     first=True
+    ra()
     #signal.signal(signal.SIGTSTP, handler)
     try:
         while sec > 0:
@@ -89,10 +98,9 @@ def cust_session(min, sec):
             time.sleep(1)    
             min = sec / 60
             seconds = sec-int(min)*60
-            sys.stdout.write("\x1b[1;34m")
-            restart_activities(first)
+            restart_activities_sql()
+            ra()
             first=False
-            sys.stdout.write("\x1b[0;0m")
             print("\t\t\t\t    \x1b[?25l \x1b[1;32m",int(min),":\033[K",seconds,"\x1b[0;0m", end="\r")
 
     except:
