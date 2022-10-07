@@ -9,7 +9,7 @@ def update_data_sql(conn, what, value):
     
     sql = ''' UPDATE activities
                  SET '''+what+''' = ?
-                WHERE name LIKE ?
+                WHERE name LIKE ? OR status LIKE ?
                 ''' 
 
 
@@ -23,7 +23,7 @@ def update_data(key,value,name):
     # create a database connection
     conn = cc(database)
     with conn:
-        values = (value, '%'+name+'%') 
+        values = (value, '%'+name+'%', '%'+name+'%') 
         update_data_sql(conn, key, values)
 
 

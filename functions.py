@@ -2,12 +2,17 @@ import os
 import time
 import sys
 #import signal
-from settings import dir_path
+from settings import * 
+
+
 
 from soundtest import soundplay as alert
 from datetime import date, timedelta, datetime
-from create_activity import return_activities as ra
-
+from create_activity import copy_activity, return_activities as ra
+from create_activity import return_for_file as rff
+from create_activity import get_value
+from update_data import update_data as ud
+from delete_activity import delete_activity as da
 
 nowtime = datetime.now()
 yestime = date.today() - timedelta(days=1)
@@ -59,57 +64,59 @@ def similar_files(fromlink,tolink):
             if flag == False: return flag
     return True
 
-
-def restart_activities(first=False):
-    linesf=fileread(activities, False)
-    liness=fileread(activities_temp, False)
-    if first:
-        fileread(activities,True,True)
-        filewrite_fromfile(activities,activities_temp)
-    elif not similar_files(activities,activities_temp) or linesf != liness:
-        print("\x1b["+str(liness) + "A\x1b[0J\x1b[1A")
-        fileread(activities,True,True)
-        filewrite_fromfile(activities,activities_temp)
-    elif not similar_files(activities,activities_temp) and linesf != liness:
-        print("\n\x1b["+str(liness) + "A\x1b[0J\x1b[1A")
-        fileread(activities,True,True)
-        filewrite_fromfile(activities,activities_temp)
-    
       
 def restart_activities_sql():
     lines = ra(False)
     print("\n\x1b["+str(lines) + "A\x1b[0J\x1b[1A")
-    
-    
+    open(activities_temp, 'w').write(str(rff()))
+    ra()
 
 
-def cust_session(min, sec):
+def cust_session(min, sec, part):
     """
     Timer with motivation image and list of activities
     """
-
     sec += min * 60
-    first=True
     ra()
     #signal.signal(signal.SIGTSTP, handler)
+    temp_min=min
     try:
         while sec > 0:
             sec-=1
-            time.sleep(1)    
+            time.sleep(0.05)    
             min = sec / 60
             seconds = sec-int(min)*60
-            restart_activities_sql()
-            ra()
-            first=False
-            print("\t\t\t\t    \x1b[?25l \x1b[1;32m",int(min),":\033[K",seconds,"\x1b[0;0m", end="\r")
 
+            if temp_min != int(min) and part == 'work': 
+                temp_min = int(min)
+                if 'doing' in open(activities).read():
+                    x=0
+                    for value in get_value('stop_time','doing'):
+                        for i in range(x, len(get_value('name','doing'))):
+                                ud('stop_time', str(1+int(value[0])), str(get_value('name','doing')[i][0])) 
+                                break
+                        x+=1
+            if 'completed' in open(activities).read():
+                x = 0 
+                for value in get_value('stop_time','completed'):
+                    for i in range(x,len(get_value('name','completed'))):
+                        ud('completed_time',value[0], str(get_value('name','completed')[i][0])) 
+                        break
+                    x+=1
+                copy_activity('completed')
+                da('completed') 
+
+            open(activities, 'w').write(str(rff()))
+            if similar_files(activities, activities_temp) == False:
+                restart_activities_sql()
+            print("\t\t\t\t    \x1b[?25l \x1b[1;32m",int(min),":\033[K",seconds,"\x1b[0;0m", end="\r")
     except:
         os.system('clear')
         print("End session?\n(y or n)")
         if input() == 'y': return True
         os.system('clear')
         print("Continue:")
-        return cust_session(0, sec)
+        return cust_session(0, sec, part)
     
 
     return False
@@ -125,22 +132,22 @@ def pomodoro_plus(min_work, min_relax, tomatos):
     while tomato_count < tomatos :
 
        #working 
+        part='work'
         os.system('clear')
         fileread(img_mot,True,False)
         print("\x1b[1;31m\n \t\t\t     You have ",tomato_count,"/",tomatos," tomatos.\x1b[0;0m")
-        status = cust_session(min_work, 0)
+        status = cust_session(min_work, 0, 'work')
         if status: break
         tomato_count+=1
-        #playsound(audio_link, block=False)
         alert()
 
        #relaxing
+        part='relax'
         os.system('clear')
         fileread(img_med,True,False)
         print("\x1b[1;31m\n \t\t\t   You have ",tomato_count,"/",tomatos," tomatos.\x1b[0;0m")
-        status = cust_session(min_relax, 0)
+        status = cust_session(min_relax, 0, 'relax')
         if status: break
-        #playsound(audio_link, block=False)
         alert()
 
     os.system('clear')

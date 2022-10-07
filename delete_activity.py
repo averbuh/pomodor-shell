@@ -12,7 +12,7 @@ def delete_activity_sql(conn, activity):
     :return: project id
     """
     sql = ''' DELETE FROM activities
-              WHERE name OR status LIKE ?
+              WHERE name LIKE ? OR status LIKE ?
               '''
     cur = conn.cursor()
     cur.execute(sql, activity)
@@ -27,7 +27,7 @@ def delete_activity(name):
     conn = cc(database)
     with conn:
         # create a new project
-        activity = ('%'+name+'%',);
+        activity = ('%'+name+'%', '%'+name+'%');
         delete_activity_sql(conn, activity)
 
 

@@ -25,20 +25,18 @@ def main():
                                         id integer PRIMARY KEY AUTOINCREMENT,
                                         name text NOT NULL,
                                         status text NOT NULL,
-                                        planning_time text,
-                                        stop_time text,
-                                        completed_time text
+                                        planning_time text DEFAULT 0,
+                                        stop_time text DEFAULT 0,
+                                        completed_time text DEFAULT 0
                                     ); """
 
-    sql_create_tasks_table = """CREATE TABLE IF NOT EXISTS tasks (
-                                    id integer PRIMARY KEY,
+    sql_create_archive_table = """CREATE TABLE IF NOT EXISTS archive (
+                                    id integer PRIMARY KEY AUTOINCREMENT,
                                     name text NOT NULL,
-                                    priority integer,
-                                    status_id integer NOT NULL,
-                                    project_id integer NOT NULL,
-                                    begin_date text NOT NULL,
-                                    end_date text NOT NULL,
-                                    FOREIGN KEY (project_id) REFERENCES projects (id)
+                                    status text NOT NULL,
+                                    planning_time text DEFAULT 0,
+                                    stop_time text DEFAULT 0,
+                                    completed_time text DEFAULT 0
                                 );"""
 
     # create a database connection
@@ -46,6 +44,7 @@ def main():
     # create tables
     if conn is not None:
         create_table(conn, sql_create_activities_table)
+        create_table(conn, sql_create_archive_table)
     else:
         print("Error! cannot create the database connection.")
 
