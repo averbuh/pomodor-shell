@@ -1,5 +1,3 @@
-import sqlite3
-
 import sys
 from settings import dir_path
 from create_connection import create_connection as cc
@@ -68,6 +66,16 @@ def copy_activity(status):
         cur.execute(sql) 
         conn.commit()
     
+def copy_activity_from_complete(name):
+    conn=cc(database)
+    sql = '''INSERT INTO activities SELECT * FROM archive
+                WHERE name LIKE ?'''
+
+    with conn:
+        cur = conn.cursor()
+        activity = ('%'+name+'%',)
+        cur.execute(sql,activity) 
+        conn.commit()
 
 
 def return_activities(printing = True):
@@ -85,14 +93,43 @@ def return_activities(printing = True):
         count = 1 
         for row in rows:
             if printing:
-                sys.stdout.write('\t   '+str(count) + ':\x1b[1;33m '+row[1]+'\x1b[0;0m | ')
+                sys.stdout.write('\t   \x1b[1;33m '+row[1]+'\x1b[0;0m | ')
+            for word in row[2:6]:
+                if printing:
+                    if word == 'doing':
+                        sys.stdout.write('\x1b[1;31m'+str(word) + '\x1b[0;0m | ')
+                    else:
+                        sys.stdout.write(str(word) + ' | ')
+                
+            count+=2
+            if printing:
+                print('\n') 
+    return count+3 
+
+
+def print_completed_activities(printing = True):
+    
+    sql = ''' SELECT * FROM archive '''
+    
+    conn = cc(database)
+    with conn:
+        cur = conn.cursor()
+        cur.execute(sql)
+        conn.commit()
+        rows = cur.fetchall()
+        if printing:
+            print('\n\x1b[1;36m \tText | Status | Plan | Process | Completed \x1b[0;0m\n')
+        count = 1 
+        for row in rows:
+            if printing:
+                sys.stdout.write('\t   :\x1b[1;33m '+row[1]+'\x1b[0;0m | ')
             for word in row[2:6]:
                 if printing:
                     sys.stdout.write(str(word) + ' | ')
-            count+=1
+            count+=2
             if printing:
                 print('\n') 
-    return count+5 
+    return count+3 
 
 
 if __name__ == '__main__':

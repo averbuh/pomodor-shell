@@ -4,8 +4,13 @@ import argparse
 import atexit
 from create_activity import create_activity as ca
 from delete_activity import delete_activity as da
+from delete_activity import delete_completed_activity as dca
 from create_activity import return_activities as ra
+from create_activity import print_completed_activities as pca
+from create_activity import copy_activity_from_complete as cafc 
 from update_data import update_data as ud
+from update_data import update_status as us
+from update_data import update_name as un
 
 from settings import *
 
@@ -14,40 +19,87 @@ def exit_handler():
     print ('\x1b[?25h')
 
 
-def final_app(*args):
+def main(args):
+    if args.command == 'run': 
+        if args.edit:
+            fun.daysession(fun.pomodoro_plus(args.edit[0],args.edit[1],args.edit[2]))
+        else:
+            fun.daysession(fun.pomodoro_plus(DEFAULT_WORK_TIME, DEFAULT_RELAX_TIME, DEFAULT_SESSIONS))
+
+    if args.command == 'today':
+        fun.today_tomatos()
+
+    if args.command == 'yesterday':
+        fun.yesterday_tomatos()
+
+    if args.command == 'def':
+        os.system('$EDITOR '+dir_path+'/settings.py')
+
+    if args.command == 'new':
+        if args.edit:
+            ca(input(), args.edit[0], args.edit[1])
+        elif args.completed:
+            cafc(args.completed[0]) 
+            dca(args.completed[0])
+            ud('stop_time', '0', 'completed') 
+            us('doing', 'completed')
+        else:
+            ca(input(), DEFAULT_STATUS, DEFAUTL_PLANNING_TIME)
+
+    if args.command == 'list':
+        if args.completed:
+            pca()
+        else:
+            ra()
+
+    if args.command == 'del':
+        if args.completed:
+           dca(args.name) 
+        else:
+            da(args.name)
+
+    if args.command == 'up':
+        if args.status:
+            us(args.value,args.name)
+        if args.name_flag:
+            un(args.value,args.name)
+        
+
+def final_app():
 
     parser = argparse.ArgumentParser()
+    subparsers= parser.add_subparsers(dest='command',help='sub-command help',required=True)
 
-    parser.add_argument('-r', '--run', help='Run pomodoro session', action='store_true')
-    parser.add_argument("-s", dest="session", help="Run custom pomodoro session", nargs=3, metavar=('MW','MR','SESSIONS'), type=int)
-    parser.add_argument("-t", "--today", help="Get tomatos for today", dest="today", action='store_true')
-    parser.add_argument("-y", "--yesterday", help="Get tomatos for yesterday", dest="yesterday", action='store_true' )
-    parser.add_argument("-v", "--defaults", help="Open default variables", dest="defaults", action='store_true')
-    parser.add_argument('-n', "--new", help="Add activity", nargs=2, metavar=('STATUS','TIME'))
-    parser.add_argument('-l', '--list', help='Return activities', action='store_true')
-    parser.add_argument('-d', '--delete', help="Delete activity", nargs=1)
-    parser.add_argument('-u', dest='update', help='Update data', nargs=3, metavar=('KEY','VALUE','NAME'))
+    parser_new = subparsers.add_parser('new', help='Add new activity')
+    parser_new.add_argument("-e", dest="edit", help="Edit command", nargs=2, type=str)
+    parser_new.add_argument('-c', '--completed', dest='completed', help="Print completed", nargs=1) 
+
+    parser_delete = subparsers.add_parser('del',help='Delete activity')
+    parser_delete.add_argument('name', help='Name')
+    parser_delete.add_argument('-c', '--completed', dest='completed', help="Print completed", action='store_true')
+
+    parser_list = subparsers.add_parser('list', help='List of activities')
+    parser_list.add_argument('-c', '--completed', dest='completed', help="Print completed", action='store_true')
+
+    parser_update = subparsers.add_parser('up', help='Update')
+    parser_update.add_argument('value')
+    parser_update.add_argument('name')
+    parser_update.add_argument('-s', '--status', help='Status', action='store_true') 
+    parser_update.add_argument('-n', '--name', dest='name_flag', help='Name', action='store_true') 
+    parser_update.add_argument('-t', '--time',  help='Time', action='store_true') 
+
+    parser_run = subparsers.add_parser('run', help='Run default session')
+    parser_run.add_argument('-e', '--edit', help='Custom session', nargs=3, type=int)
+
+    parser_today = subparsers.add_parser('today', help='Print today')
+
+    parser_yesterday = subparsers.add_parser('yesterday', help='Print yesterday')
+    
+    parser_default = subparsers.add_parser('def', help='Open default variables file')
 
     args=parser.parse_args()
-    if args.session:
-        fun.daysession(fun.pomodoro_plus(args.session[0],args.session[1],args.session[2]))
-    elif args.today:
-        fun.today_tomatos()
-    elif args.yesterday:
-        fun.yesterday_tomatos()
-    elif args.defaults:
-            os.system('$EDITOR '+dir_path+'/settings.py')
-    if args.new:
-        ca(input(), args.new[0], args.new[1])
-    elif args.list:
-        ra()
-    if args.delete:
-        da(args.delete[0])
-    if args.update:
-        ud(args.update[0], args.update[1], args.update[2])
-    if args.run:
-        fun.daysession(fun.pomodoro_plus(DEFAULT_WORK_TIME, DEFAULT_RELAX_TIME, DEFAULT_SESSIONS))
+    main(args)
+
 
 final_app()
-
 atexit.register(exit_handler)

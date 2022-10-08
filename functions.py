@@ -1,11 +1,7 @@
 import os
 import time
 import sys
-#import signal
 from settings import * 
-
-
-
 from soundtest import soundplay as alert
 from datetime import date, timedelta, datetime
 from create_activity import copy_activity, return_activities as ra
@@ -26,14 +22,6 @@ daylogs=dir_path+'daylogs/'
 activities=dir_path+'activities.txt'
 activities_temp=dir_path+'activities_temp.txt'
 
-
-#def handler(signum, frame):
-#    if signum == signal.SIGTSTP:
-#        signal.signal(signal.SIGTSTP, signal.SIGTSTP)
-#        sys.stdout.write("\n\x1b[1;34m")
-#        fileread(activities,True,True)
-#        sys.stdout.write("\n\x1b[0;0m")
-    
 
 def fileread(link, print_status=True, tab=False):
     lines = 0
@@ -79,15 +67,16 @@ def cust_session(min, sec, part):
     sec += min * 60
     ra()
     #signal.signal(signal.SIGTSTP, handler)
-    temp_min=min
+    temp_min=min-1
     try:
+
         while sec > 0:
             sec-=1
-            time.sleep(0.05)    
+            time.sleep(1)    
             min = sec / 60
             seconds = sec-int(min)*60
 
-            if temp_min != int(min) and part == 'work': 
+            if temp_min > int(min) and part == 'work': 
                 temp_min = int(min)
                 if 'doing' in open(activities).read():
                     x=0
@@ -97,7 +86,7 @@ def cust_session(min, sec, part):
                                 break
                         x+=1
             if 'completed' in open(activities).read():
-                x = 0 
+                x=0 
                 for value in get_value('stop_time','completed'):
                     for i in range(x,len(get_value('name','completed'))):
                         ud('completed_time',value[0], str(get_value('name','completed')[i][0])) 
