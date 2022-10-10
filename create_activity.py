@@ -89,7 +89,7 @@ def return_activities(printing = True):
         conn.commit()
         rows = cur.fetchall()
         if printing:
-            print('\n\x1b[1;36m \tText | Status | Plan | Process | Completed \x1b[0;0m\n')
+            print('\n\x1b[1;36m \t\t   Text | Status | Plan | Process | Completed \x1b[0;0m\n')
         count = 1 
         for row in rows:
             if printing:
@@ -118,11 +118,11 @@ def print_completed_activities(printing = True):
         conn.commit()
         rows = cur.fetchall()
         if printing:
-            print('\n\x1b[1;36m \tText | Status | Plan | Process | Completed \x1b[0;0m\n')
+            print('\n\x1b[1;36m \t\tText | Status | Plan | Process | Completed \x1b[0;0m\n')
         count = 1 
         for row in rows:
             if printing:
-                sys.stdout.write('\t   :\x1b[1;33m '+row[1]+'\x1b[0;0m | ')
+                sys.stdout.write('\t   \x1b[1;33m '+row[1]+'\x1b[0;0m | ')
             for word in row[2:6]:
                 if printing:
                     sys.stdout.write(str(word) + ' | ')

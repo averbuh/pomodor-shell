@@ -2,6 +2,8 @@ import functions as fun
 import os
 import argparse
 import atexit
+
+
 from create_activity import create_activity as ca
 from delete_activity import delete_activity as da
 from delete_activity import delete_completed_activity as dca
@@ -11,7 +13,7 @@ from create_activity import copy_activity_from_complete as cafc
 from update_data import update_data as ud
 from update_data import update_status as us
 from update_data import update_name as un
-
+from update_data import update_time as ut
 from settings import *
 
 
@@ -46,7 +48,7 @@ def main(args):
         else:
             ca(input(), DEFAULT_STATUS, DEFAUTL_PLANNING_TIME)
 
-    if args.command == 'list':
+    if args.command == 'ls':
         if args.completed:
             pca()
         else:
@@ -63,9 +65,14 @@ def main(args):
             us(args.value,args.name)
         if args.name_flag:
             un(args.value,args.name)
+        if args.time:
+            ut(args.value,args.name)
+
+    if args.command == 'int':
+       fun.interactive_mod(['python3', dir_path+'final_pomodoro.py', 'ls'])
         
 
-def final_app():
+def parser_cli():
 
     parser = argparse.ArgumentParser()
     subparsers= parser.add_subparsers(dest='command',help='sub-command help',required=True)
@@ -78,8 +85,8 @@ def final_app():
     parser_delete.add_argument('name', help='Name')
     parser_delete.add_argument('-c', '--completed', dest='completed', help="Print completed", action='store_true')
 
-    parser_list = subparsers.add_parser('list', help='List of activities')
-    parser_list.add_argument('-c', '--completed', dest='completed', help="Print completed", action='store_true')
+    parser_ls = subparsers.add_parser('ls', help='List of activities')
+    parser_ls.add_argument('-c', '--completed', dest='completed', help="Print completed", action='store_true')
 
     parser_update = subparsers.add_parser('up', help='Update')
     parser_update.add_argument('value')
@@ -97,9 +104,11 @@ def final_app():
     
     parser_default = subparsers.add_parser('def', help='Open default variables file')
 
+    parser_interactive = subparsers.add_parser('int', help='Interactive mode')
+
     args=parser.parse_args()
     main(args)
 
 
-final_app()
+parser_cli()
 atexit.register(exit_handler)

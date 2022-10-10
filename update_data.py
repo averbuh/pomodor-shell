@@ -39,8 +39,14 @@ def update_data(key,value,name):
 def update_status(value,name):
     update_data('status',value,name) 
 
+
 def update_name(value,name):
     update_data('name',value,name)
+
+
+def update_time(value,name):
+    update_data('stop_time',value,name)
+
 
 if __name__ == '__main__':
     update_name('Create documentation for hebrew', 'hebrew') 

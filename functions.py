@@ -1,6 +1,12 @@
 import os
 import time
 import sys
+import subprocess
+import threading
+import tkinter
+import keyboard
+
+
 from settings import * 
 from soundtest import soundplay as alert
 from datetime import date, timedelta, datetime
@@ -60,60 +66,109 @@ def restart_activities_sql():
     ra()
 
 
-def cust_session(min, sec, part):
+def interactive_mod(table):
+    '''
+    Interactive visual edit mode 
+    '''
+    user = 'ls'
+    try:
+        while True:
+            subprocess.run(['clear'], check=True)
+            pathtotomato = 'python3 '+ dir_path + 'final_pomodoro.py'
+            subprocess.run(table, check=True)
+            print('\nInput command: ([q] for exit)\n')
+            input()
+            if user == 'q':
+                os.system('clear')
+                break
+            elif user == 'ls -c':
+                table =  ['python3', dir_path+'final_pomodoro.py', 'ls', '-c']
+                continue
+            elif user == 'ls':
+                table = ['python3', dir_path+'final_pomodoro.py', 'ls']
+                continue
+            elif user == '-h' or user == '--help' or user == 'help' or user == 'h':
+                table = ['python3', dir_path+'final_pomodoro.py', '-h']
+                continue
+            command = pathtotomato + ' ' + user 
+            subprocess.run(command.split(' '), check=True) 
+            if user.split(' ')[1] == '-h':
+                table = ['python3', dir_path+'final_pomodoro.py', user.split(' ')[0], '-h']
+                
+    except:
+        interactive_mod(table)
+
+def increase_time(status):
+    '''
+    Increase time depending on the status.
+    '''
+    for item in status:
+        if item in open(activities).read():
+            x=0
+            for value in get_value('stop_time', item):
+                for i in range(x, len(get_value('name',item))):
+                        ud('stop_time', str(1+int(value[0])), str(get_value('name',item)[i][0])) 
+                        break
+                x+=1
+
+
+def timer_activities(min, sec, part):
     """
-    Timer with motivation image and list of activities
+    Timer with list of activities
     """
-    sec += min * 60
+    if min == 0:
+        min = sec / 60
+    else:
+        sec += min * 60
     ra()
     #signal.signal(signal.SIGTSTP, handler)
-    temp_min=min-1
+    temp_min=min
+    
     try:
-
-        while sec > 0:
-            sec-=1
-            time.sleep(1)    
-            min = sec / 60
-            seconds = sec-int(min)*60
-
-            if temp_min > int(min) and part == 'work': 
-                temp_min = int(min)
-                if 'doing' in open(activities).read():
-                    x=0
-                    for value in get_value('stop_time','doing'):
-                        for i in range(x, len(get_value('name','doing'))):
-                                ud('stop_time', str(1+int(value[0])), str(get_value('name','doing')[i][0])) 
-                                break
+            while sec > 0: 
+                sec-=1
+                time.sleep(SPEED)    
+                min = sec / 60
+                seconds = sec-int(min)*60
+                if temp_min > int(min): 
+                    temp_min = int(min)
+                    if part == 'work':
+                        increase_time(RUN_STATUS_WORK)
+                    if part == 'relax':
+                        increase_time(RUN_STATUS_RELAX)
+                if 'completed' in open(activities).read():
+                    x=0 
+                    for value in get_value('stop_time','completed'):
+                        for i in range(x,len(get_value('name','completed'))):
+                            ud('completed_time',value[0], str(get_value('name','completed')[i][0])) 
+                            break
                         x+=1
-            if 'completed' in open(activities).read():
-                x=0 
-                for value in get_value('stop_time','completed'):
-                    for i in range(x,len(get_value('name','completed'))):
-                        ud('completed_time',value[0], str(get_value('name','completed')[i][0])) 
-                        break
-                    x+=1
-                copy_activity('completed')
-                da('completed') 
+                    copy_activity('completed')
+                    da('completed') 
 
-            open(activities, 'w').write(str(rff()))
-            if similar_files(activities, activities_temp) == False:
-                restart_activities_sql()
-            print("\t\t\t\t    \x1b[?25l \x1b[1;32m",int(min),":\033[K",seconds,"\x1b[0;0m", end="\r")
+                open(activities, 'w').write(str(rff()))
+                if similar_files(activities, activities_temp) == False:
+                    restart_activities_sql()
+                print("\t\t\t\t   \x1b[?25l \x1b[1;32m",int(min),":\033[K",seconds,"\x1b[0;0m", end="\r")
     except:
         os.system('clear')
-        print("End session?\n(y or n)")
-        if input() == 'y': return True
+        while True:
+            print("\x1b[?25h\nExit - [q]\nEdit mode - [e]\nContinue\n")
+            command=str(input())
+            if command == 'q': return True
+            elif command == '': break
+            elif command == 'e':
+                interactive_mod(['python3', dir_path+'final_pomodoro.py', 'ls'])
+                break
         os.system('clear')
-        print("Continue:")
-        return cust_session(0, sec, part)
-    
+        return timer_activities(0, sec, part)
 
     return False
 
 
 def pomodoro_plus(min_work, min_relax, tomatos):
     """
-    Pomodoro timer with working and relax sessions.
+    Sessions with timer_activities function inside.  
     """
     status = False
     tomato_count=0
@@ -123,9 +178,12 @@ def pomodoro_plus(min_work, min_relax, tomatos):
        #working 
         part='work'
         os.system('clear')
-        fileread(img_mot,True,False)
+        if DEFAULT_IMG == 'text':
+            os.system("echo '  DO IT!' | figlet -c -f lean | tr ' _/' ' ##'")
+        if DEFAULT_IMG == 'img':
+            fileread(img_mot,True,False)
         print("\x1b[1;31m\n \t\t\t     You have ",tomato_count,"/",tomatos," tomatos.\x1b[0;0m")
-        status = cust_session(min_work, 0, 'work')
+        status = timer_activities(min_work, 0, part)
         if status: break
         tomato_count+=1
         alert()
@@ -133,9 +191,12 @@ def pomodoro_plus(min_work, min_relax, tomatos):
        #relaxing
         part='relax'
         os.system('clear')
-        fileread(img_med,True,False)
+        if DEFAULT_IMG == 'text':
+            os.system("echo '  RELAX' | figlet -c -f lean | tr ' _/' ' ()'")
+        if DEFAULT_IMG == 'img':
+            fileread(img_med,True,False)
         print("\x1b[1;31m\n \t\t\t   You have ",tomato_count,"/",tomatos," tomatos.\x1b[0;0m")
-        status = cust_session(min_relax, 0, 'relax')
+        status = timer_activities(min_relax, 0, part)
         if status: break
         alert()
 
@@ -160,9 +221,9 @@ def daysession(add_tomato):
     text_file.close()
 
 
-def printDaytomatos(date, dayname):
+def day_tomatos(date, dayname):
     """
-    Print how much tomatos you did in this day
+    Print tomatos you did in specific day.
     """
     sum = 0
     try:
@@ -182,14 +243,14 @@ def today_tomatos():
     """
     Print today tomatos
     """
-    printDaytomatos(d_string, "today")
+    day_tomatos(d_string, "today")
 
 
 def yesterday_tomatos():
     """
     Print yesterday tomatos
     """
-    printDaytomatos(yesterday, "yesterday")
+    day_tomatos(yesterday, "yesterday")
 
 
 if __name__ == "__main__":
