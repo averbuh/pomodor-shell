@@ -26,7 +26,7 @@ def main():
                                         name text NOT NULL,
                                         status text NOT NULL,
                                         planning_time text DEFAULT 0,
-                                        stop_time text DEFAULT 0,
+                                        stop_time text DEFAULT '0:0',
                                         completed_time text DEFAULT 0
                                     ); """
 
@@ -35,7 +35,7 @@ def main():
                                     name text NOT NULL,
                                     status text NOT NULL,
                                     planning_time text DEFAULT 0,
-                                    stop_time text DEFAULT 0,
+                                    stop_time text DEFAULT '0:0',
                                     completed_time text DEFAULT 0
                                 );"""
 
