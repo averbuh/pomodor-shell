@@ -1,7 +1,7 @@
 import sqlite3
 
 from sqlite3 import Error
-from settings import dir_path
+from var import dir_path
 from .create_connection import create_connection as cc
 from .create_activity import copy_activity as ca
 from .delete_activity import delete_activity as da

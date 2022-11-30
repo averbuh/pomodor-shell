@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Error
-from settings import dir_path
+from var import dir_path
 from .create_connection import create_connection as cc
 
 

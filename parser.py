@@ -1,4 +1,4 @@
-import functions as fun
+import app
 import os
 import argparse
 import atexit
@@ -15,7 +15,7 @@ from database.update_data import update_status as us
 from database.update_data import update_name as un
 from database.update_data import update_time as ut
 from database.update_data import update_plan as up
-from settings import *
+from var import *
 
 
 def exit_handler():
@@ -25,18 +25,18 @@ def exit_handler():
 def main(args):
     if args.command == 'run': 
         if args.edit:
-            fun.daysession(fun.pomodoro_plus(args.edit[0],args.edit[1],args.edit[2]))
+            app.daysession(app.pomodoro_plus(args.edit[0],args.edit[1],args.edit[2]))
         else:
-            fun.daysession(fun.pomodoro_plus(DEFAULT_WORK_TIME, DEFAULT_RELAX_TIME, DEFAULT_SESSIONS))
+            app.daysession(app.pomodoro_plus(DEFAULT_WORK_TIME, DEFAULT_RELAX_TIME, DEFAULT_SESSIONS))
 
     if args.command == 'today':
-        fun.today_tomatos()
+        app.today_tomatos()
 
     if args.command == 'yesterday':
-        fun.yesterday_tomatos()
+        app.yesterday_tomatos()
 
     if args.command == 'def':
-        os.system('$EDITOR '+dir_path+'/settings.py')
+        os.system('$EDITOR '+dir_path+'/var.py')
 
     if args.command == 'new':
         if args.edit:
@@ -72,7 +72,7 @@ def main(args):
             up(args.value,args.name)
 
     if args.command == 'int':
-       fun.interactive_mod(['python3', dir_path+'parser.py', 'ls'])
+       app.interactive_mod(['python3', dir_path+'parser.py', 'ls'])
         
 
 def parser_cli():
