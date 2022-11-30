@@ -1,3 +1,5 @@
 activities.txt
 activities_temp.txt
 daylogs/*
+__pycache__/*
+tomato_data.db
