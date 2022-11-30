@@ -9,12 +9,12 @@ import tkinter
 from settings import * 
 from soundtest import soundplay as alert
 from datetime import date, timedelta, datetime
-from create_activity import copy_activity, return_activities as ra
-from create_activity import return_for_file as rff
-from create_activity import get_value
-from update_data import update_data as ud
-from update_data import update_status as us
-from delete_activity import delete_activity as da
+from database.create_activity import copy_activity, return_activities as ra
+from database.create_activity import return_for_file as rff
+from database.create_activity import get_value
+from database.update_data import update_data as ud
+from database.update_data import update_status as us
+from database.delete_activity import delete_activity as da
 
 nowtime = datetime.now()
 yestime = date.today() - timedelta(days=1)
@@ -74,7 +74,7 @@ def interactive_mod(table):
     try:
         while True:
             subprocess.run(['clear'], check=True)
-            pathtotomato = 'python3 '+ dir_path + 'final_pomodoro.py'
+            pathtotomato = 'python3 '+ dir_path + 'parser.py'
             subprocess.run(table, check=True)
             print('\nInput command: ([q] for exit)\n')
             user = input()
@@ -82,18 +82,18 @@ def interactive_mod(table):
                 os.system('clear')
                 break
             elif user == 'ls -c':
-                table =  ['python3', dir_path+'final_pomodoro.py', 'ls', '-c']
+                table =  ['python3', dir_path+'parser.py', 'ls', '-c']
                 continue
             elif user == 'ls':
-                table = ['python3', dir_path+'final_pomodoro.py', 'ls']
+                table = ['python3', dir_path+'parser.py', 'ls']
                 continue
             elif user == '-h' or user == '--help' or user == 'help' or user == 'h':
-                table = ['python3', dir_path+'final_pomodoro.py', '-h']
+                table = ['python3', dir_path+'parser.py', '-h']
                 continue
             command = pathtotomato + ' ' + user 
             subprocess.run(command.split(' '), check=True) 
             if user.split(' ')[1] == '-h':
-                table = ['python3', dir_path+'final_pomodoro.py', user.split(' ')[0], '-h']
+                table = ['python3', dir_path+'parser.py', user.split(' ')[0], '-h']
                 
     except:
         interactive_mod(table)
@@ -174,10 +174,10 @@ def timer_activities(part, min, sec, tomatos, tomato_count):
                     continue
                 else:
                     us('completed', 'doing') 
-                    interactive_mod(['python3', dir_path+'final_pomodoro.py', 'ls'])
+                    interactive_mod(['python3', dir_path+'parser.py', 'ls'])
             elif command == '': break
             elif command == 'e':
-                interactive_mod(['python3', dir_path+'final_pomodoro.py', 'ls'])
+                interactive_mod(['python3', dir_path+'parser.py', 'ls'])
                 break
         os.system('clear')
         return session_part(part,0,sec,tomatos,tomato_count)
